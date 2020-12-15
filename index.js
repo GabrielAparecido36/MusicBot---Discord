@@ -28,43 +28,59 @@ client.on("message", async message => {
     if (!message.content.startsWith(prefixos[message.guild.id])) return;
     serverQueue = queue.get(message.guild.id);
     const args = message.content.split(" ");
-    if (message.content.startsWith(`${prefixos[message.guild.id]}play`)) {
+
+    const command = args[0]
+
+    if (command === `${prefixos[message.guild.id]}play` || command === `${prefixos[message.guild.id]}p`) {
         nameVideo = ""
         for (let i = 1; i < args.length; i++) {
             nameVideo += args[i] + " ";
         }
-        if(nameVideo.search("list")!= -1){
+        if (nameVideo.search("list") != -1) {
             YouTube.getPlaylist(nameVideo).then(x => {
                 executePlaylist(message, serverQueue, x);
             })
             return;
-        }else{
+        } else {
             YouTube.search(nameVideo, { limit: 1 }).then(x => {
                 execute(message, serverQueue, x[0].id, x[0].title);
             })
             return;
         }
-    } else if (message.content.startsWith(`${prefixos[message.guild.id]}skip`)) {
+    } else if (command === `${prefixos[message.guild.id]}skip`) {
         skip(message, serverQueue);
         return;
-    } else if (message.content.startsWith(`${prefixos[message.guild.id]}disconnect`) || message.content.startsWith(`${prefixos[message.guild.id]}disc`) || message.content.startsWith(`${prefixos[message.guild.id]}d`)) {
+    } else if (command === `${prefixos[message.guild.id]}disconnect` || command === `${prefixos[message.guild.id]}disc` || command === `${prefixos[message.guild.id]}d`) {
         disconnect(message, serverQueue);
         return;
-    } else if (message.content.startsWith(`${prefixos[message.guild.id]}queue`)) {
+    } else if (command === `${prefixos[message.guild.id]}queue`) {
         listQueue(message)
         return;
-    } else if (message.content.startsWith(`${prefixos[message.guild.id]}pause`)) {
+    } else if (command === `${prefixos[message.guild.id]}pause`) {
         pause(message)
         return;
-    } else if (message.content.startsWith(`${prefixos[message.guild.id]}unpause`)) {
+    } else if (command === `${prefixos[message.guild.id]}unpause`) {
         unpause(message)
         return;
-    } else if (message.content.startsWith(`${prefixos[message.guild.id]}help`)) {
+    } else if (command === `${prefixos[message.guild.id]}help`) {
         help(message)
         return;
-    } else if (message.content.startsWith(`${prefixos[message.guild.id]}prefix`)) {
-        changePrefix(message, args[1])
-        return;
+    } else if (command === `${prefixos[message.guild.id]}prefix`) {
+        if (args.length != 1) {
+            changePrefix(message, args[1])
+            return;
+        }
+        else {
+            message.reply("Digite um prefixo após o comando!")
+        }
+    } else if (command === `${prefixos[message.guild.id]}shuffle`) {
+        if (queueContructs[message.guild.id].songs) {
+            shuffle(queueContructs[message.guild.id].songs)
+            listQueue(message)
+            return;
+        } else {
+            message.reply("Não tem nenhuma música na fila")
+        }
     }
 });
 
@@ -84,9 +100,9 @@ async function executePlaylist(message, serverQueue, videosPlaylist) {
 
     let song = []
 
-    for(let i = 0 ; i < videosPlaylist.videos.length; i++){
+    for (let i = 0; i < videosPlaylist.videos.length; i++) {
         let songTemp = {
-            url: urlYoutube+videosPlaylist.videos[i].id,
+            url: urlYoutube + videosPlaylist.videos[i].id,
             title: videosPlaylist.videos[i].title
         }
         song.push(songTemp)
@@ -104,7 +120,7 @@ async function executePlaylist(message, serverQueue, videosPlaylist) {
         queueContructs[message.guild.id] = queueContruct
         queue.set(message.guild.id, queueContructs[message.guild.id]);
 
-        for(let i = 0; i < song.length; i++){
+        for (let i = 0; i < song.length; i++) {
             queueContructs[message.guild.id].songs.push(song[i]);
         }
         try {
@@ -127,7 +143,7 @@ async function executePlaylist(message, serverQueue, videosPlaylist) {
 
 
 async function execute(message, serverQueue, idVideo, titleVideo) {
-    urlYoutube = "https://www.youtube.com/watch?v="+idVideo
+    urlYoutube = "https://www.youtube.com/watch?v=" + idVideo
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel)
         return message.channel.send("Você precisa estar em um canal de voz!");
@@ -216,7 +232,7 @@ function play(guild, song) {
 
 function listQueue(message) {
 
-    if (!queueContructs[message.guild.id] || queueContructs[message.guild.id].songs.length == 0){
+    if (!queueContructs[message.guild.id] || queueContructs[message.guild.id].songs.length == 0) {
         message.reply("Não tem nenhuma música na lista de música");
         return;
     }
@@ -242,7 +258,21 @@ function unpause(message) {
     djs[message.guild.id].resume()
 }
 
+function shuffle(array) {
+    var indice_atual = array.length, valor_temporario, indice_aleatorio;
 
+    while (0 !== indice_atual) {
+
+        indice_aleatorio = Math.floor(Math.random() * indice_atual);
+        indice_atual -= 1;
+
+        valor_temporario = array[indice_atual];
+        array[indice_atual] = array[indice_aleatorio];
+        array[indice_aleatorio] = valor_temporario;
+    }
+
+    return array;
+}
 
 
 
@@ -261,5 +291,7 @@ function changePrefix(message, newPrefix) {
     prefixos[message.guild.id] = newPrefix
     message.reply(`Prefixo alterado para ${prefixos[message.guild.id]}`)
 }
+
+
 
 client.login(BOT_TOKEN);
