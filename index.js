@@ -278,11 +278,12 @@ function shuffle(array) {
 
 function help(message) {
     message.reply(`Os comandos são:
-   ${prefixos[message.guild.id]}play (Nome ou Link da música) - Para tocar uma música.
+   ${prefixos[message.guild.id]}play ou ${prefixos[message.guild.id]}p (Nome ou Link da música) - Para tocar uma música.
    ${prefixos[message.guild.id]}pause - Para pausar uma música.
    ${prefixos[message.guild.id]}unpause - Para retomar a música pausada.
    ${prefixos[message.guild.id]}skip - Para pular a música atual.
    ${prefixos[message.guild.id]}queue - Para listar as músicas em sequência.
+   ${prefixos[message.guild.id]}shuffle - Para embaralhar as músicas na Queue.
    ${prefixos[message.guild.id]}d ou ${prefixos[message.guild.id]}disc ou ${prefixos[message.guild.id]}disconnect - Para desconectar o bot.
    ${prefixos[message.guild.id]}prefix (Novo Prefixo) - Para trocar o prefixo.`)
 }
